@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "Netflix Subtitle Logger",
+    "name": "Sentence miner",
     "version": "1.0",
-    "description": "Logs Netflix subtitles to the console.",
+    "description": "Mines words from subtitles and sends them to anki",
     "permissions": ["activeTab", "scripting"],
     "host_permissions": ["https://*.netflix.com/*", "https://*.youtube.com/*"],
     "background": {
