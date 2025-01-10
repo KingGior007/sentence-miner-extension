@@ -1,0 +1,19 @@
+{
+    "manifest_version": 3,
+    "name": "Netflix Subtitle Logger",
+    "version": "1.0",
+    "description": "Logs Netflix subtitles to the console.",
+    "permissions": ["activeTab", "scripting"],
+    "host_permissions": ["https://*.netflix.com/*", "https://*.youtube.com/*"],
+    "background": {
+      "service_worker": "background.js"
+    },
+    "content_scripts": [
+      {
+        "matches": ["https://www.netflix.com/*", "https://www.youtube.com/*"],
+        "css": ["contents/styles.css"],
+        "js": ["contents/helper.js", "contents/ui.js", "contents/content.js"],
+        "type": "module"
+      }
+    ]
+  }
