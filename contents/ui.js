@@ -12,7 +12,7 @@ function addOverlay() {
     const youtubePlayer = document.querySelector("div#player")
     if (youtubePlayer) youtubePlayer.appendChild(overlay)
     else document.body.appendChild(overlay);
-    
+
     document.addEventListener("fullscreenchange", () => {
         fullscreenElement = document.fullscreenElement;
         if (document.fullscreenElement !== null) {
@@ -28,7 +28,6 @@ function addOverlay() {
 }
 
 async function showPopup(e, lastSub) {
-    console.log('popup')
     hidePopup(e);
     const word = e.target.dataset.word;
     const popup = document.createElement('div');
@@ -40,7 +39,13 @@ async function showPopup(e, lastSub) {
     } catch {
         popup.innerHTML = "An error occured while fetching " + word + "'s data"
     }
-    document.body.appendChild(popup);
+
+    if (document.fullscreenElement) {
+        document.fullscreenElement.appendChild(popup)
+    }
+    else if (window.location.origin == "https://www.youtube.com" || window.location.origin == "https://www.netflix.com") {
+        document.body.appendChild(popup);
+    }
 
     const rect = e.target.getBoundingClientRect();
     const subs = document.querySelector(".custom-overlay").getBoundingClientRect();
@@ -48,6 +53,10 @@ async function showPopup(e, lastSub) {
     popup.style.bottom = `${window.innerHeight - subs.top + 10}px`;  // Adjust the '10' for spacing above
     popup.style.left = `${rect.left}px`; // Align horizontally with the word
     popup.addEventListener('mouseleave', (e) => hidePopup(e));
+
+    document.addEventListener("fullscreenchange", () => {
+        hidePopup(1)
+    })
 }
 
 function hidePopup(e) {
@@ -70,14 +79,13 @@ function disableNetflixSubs() {
         for (let i = 0; i < overlays.length; i++) {
             overlays[i].remove()
         }
-        console.log("overlays removed")}
+    }
 
     const subContainers = document.querySelectorAll("ytd-engagement-panel-section-list-renderer.style-scope.ytd-watch-flexy");
     for (const subContainer of subContainers) {
         const computedStyle = getComputedStyle(subContainer);
         if (computedStyle.order && Number(computedStyle.order) <= 0 &&
             subContainer.getAttribute("target-id") == "engagement-panel-searchable-transcript") {
-            console.log("transcript removed")
             subContainer.setAttribute("visibility", "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN");
             break;
         }

@@ -19,7 +19,7 @@ const setupNetflixObserver = () => {
                     if (node.nodeType === Node.ELEMENT_NODE && node.textContent.trim() && lastSub != node.textContent.trim()) {
                         lastSub = node.textContent.trim();
 
-						const segmenter = new Intl.Segmenter('ja-JP', { granularity: 'word' });
+                        const segmenter = new Intl.Segmenter('ja-JP', { granularity: 'word' });
                         const segments = [...segmenter.segment(lastSub)].map(segment => segment.segment);
                         overlay.innerHTML = segments.map((segment) => {
                             if (segment.match(japanesePunctuation)) return `<span>${segment}</span>`;
@@ -133,9 +133,9 @@ function setupYoutubeObserver() {
         for (const subContainer of subContainers) {
             const computedStyle = getComputedStyle(subContainer);
             if (computedStyle.order && Number(computedStyle.order) <= 0 &&
-             subContainer.getAttribute("target-id") == "engagement-panel-searchable-transcript") {
-                container = subContainer; 
-                break; 
+                subContainer.getAttribute("target-id") == "engagement-panel-searchable-transcript") {
+                container = subContainer;
+                break;
             }
         }
 
@@ -156,8 +156,8 @@ function setupYoutubeObserver() {
                     for (const subtitle of subtitles) {
                         if (subtitle.children[0].children[0].children[0].textContent.trim() === String(lastTimeStampUpdate).trim() &&
                             currentSubtitle !== subtitle.children[0].children[2].textContent.trim()) {
-                            if (currentSubtitle !== subtitle.children[0].children[2].textContent.trim()) 
-                            currentSubtitle = subtitle.children[0].children[2].textContent.trim();
+                            if (currentSubtitle !== subtitle.children[0].children[2].textContent.trim())
+                                currentSubtitle = subtitle.children[0].children[2].textContent.trim();
                             break;
                         }
                     }
@@ -182,18 +182,18 @@ function setupYoutubeObserver() {
             const onNewTimeStamp = () => {
                 const subtitles = document.querySelectorAll("ytd-transcript-segment-renderer.style-scope.ytd-transcript-segment-list-renderer");
                 const timeStamp = document.querySelector(".ytp-time-current").innerHTML;
-                lastTimeStampUpdate = timeStamp; 
+                lastTimeStampUpdate = timeStamp;
                 if (lastIntervalId !== null) {
                     clearInterval(lastIntervalId);
                     lastIntervalId = setInterval(updateTimeStamp, 1000);
                 }
                 for (const subtitle of subtitles) {
                     if (subtitle.children[0].children[0].children[0].textContent.trim() === String(timeStamp).trim() &&
-                            currentSubtitle !== subtitle.children[0].children[2].textContent.trim()) {
+                        currentSubtitle !== subtitle.children[0].children[2].textContent.trim()) {
                         currentSubtitle = subtitle.children[0].children[2].textContent;
                         break;
                     }
-                } 
+                }
 
                 if (currentSubtitle === undefined) return;
                 // if (!isJapanese(lastSub)) {
@@ -202,8 +202,8 @@ function setupYoutubeObserver() {
                 //     container.setAttribute("visibility", "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN");
                 //     return
                 // };
-                        
-				const segmenter = new Intl.Segmenter('ja-JP', { granularity: 'word' });
+
+                const segmenter = new Intl.Segmenter('ja-JP', { granularity: 'word' });
                 const segments = [...segmenter.segment(currentSubtitle)].map(segment => segment.segment.replace("<", "").replace(">", ""));
                 overlay.innerHTML = segments.map((segment) => {
                     if (segment.match(japanesePunctuation)) return `<span>${segment}</span>`;
@@ -226,7 +226,7 @@ function setupYoutubeObserver() {
             getIsPaused()
 
             lastIntervalId = setInterval(updateTimeStamp, 1000);
-        } 
+        }
         else {
             console.log("Subtitle container not found, retrying...");
             setTimeout(setupYoutubeObserver, 1000); // Retry every second
@@ -237,7 +237,7 @@ function setupYoutubeObserver() {
     }
 }
 
-function setPathObserver(){
+function setPathObserver() {
     let currentPath;
     const onDomChange = () => {
         if (currentPath !== window.location.pathname) {
