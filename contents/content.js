@@ -1,14 +1,18 @@
 let lastSub;
 const japanesePunctuation = /[！〜、。・：「」『』【】（）［］｛｝！＃＄％＆’（）＊＋，－．／：；＜＝＞＠［＼］＾＿｀｛｜｝～「」『』〆〤… 　 ？♪]/g;
 
-
+let lastTimeOutIdNetflix = null;
 const setupNetflixObserver = () => {
-    addOverlay();
-    let overlay = document.getElementsByClassName('custom-overlay')[0];
-    overlay.textContent = 'Fetching subtitles...';
     try {
         const container = document.querySelector(".player-timedtext-text-container").parentElement;
         container.style.display = "none"
+
+        if (lastTimeOutIdNetflix !== null) {
+            clearTimeout(lastTimeOutIdNetflix);
+        }
+        addOverlay();
+        let overlay = document.getElementsByClassName('custom-overlay')[0];
+        overlay.textContent = 'Fetching subtitles...';
 
         const observer = new MutationObserver((mutationsList, observer) => {
             container.style.display = "none"
@@ -47,7 +51,7 @@ const setupNetflixObserver = () => {
         console.log("Observer set up successfully!");
     } catch {
         console.log("Subtitle container not found, retrying...");
-        setTimeout(setupNetflixObserver, 1000); // Retry every second
+        lastTimeOutIdNetflix = setTimeout(setupNetflixObserver, 1000); // Retry every second
     }
 };
 
@@ -73,24 +77,17 @@ function setupYoutubeObserver() {
     let isPaused = true;
     addOverlay();
     let overlay = document.querySelector('.custom-overlay');
+    overlay.textContent = "Fetching subtitles";
     let lastIntervalId = null;
 
     function getIsPaused() {
-        // Select the target node to observe
         const targetNode = document.querySelector('#movie_player');
 
-        // Ensure the target node exists
         if (targetNode) {
-            // Create an observer instance
             const observer = new MutationObserver((mutationsList) => {
                 for (const mutation of mutationsList) {
-                    // Check if the mutation involves attribute changes
                     if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
                         const element = mutation.target;
-                        // if (element.classList.contains('ytp-autohide')) {
-                        //     element.classList.remove('ytp-autohide');
-                        //     element.classList.remove('ytp-large-width-mode')
-                        // }
                         if (element.classList.contains("paused-mode")) {
                             isPaused = true;
                         }
@@ -101,13 +98,11 @@ function setupYoutubeObserver() {
                 }
             });
 
-            // Observer configuration
             const config = {
-                attributes: true, // Observe attribute changes
-                attributeFilter: ['class'], // Only watch for changes to the 'class' attribute
+                attributes: true,
+                attributeFilter: ['class'],
             };
 
-            // Start observing the target node
             observer.observe(targetNode, config);
 
             console.log('Mutation observer is active');
@@ -116,11 +111,7 @@ function setupYoutubeObserver() {
         }
     }
     try {
-        // clicks on an element in the youtube video in order to keep the timestamp element from being disabled
-        // document.querySelector("button.ytp-button.ytp-settings-button.ytp-hd-quality-badge").click();
-        // document.querySelector(".ytp-chrome-bottom").style.display = "none";
         document.querySelector(".ytp-gradient-bottom").style.display = "none";
-        // document.querySelector(".ytp-popup.ytp-settings-menu").style.display = "none";
         let captions = document.querySelector("button.ytp-subtitles-button.ytp-button");
         if (captions && captions.getAttribute("aria-pressed") == "true") {
             captions.click()
