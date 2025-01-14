@@ -2,7 +2,7 @@ function addOverlay() {
     if (document.getElementsByClassName('custom-overlay').length !== 0) return; // Prevent duplicates
     const overlay = document.createElement('div');
     overlay.className = 'custom-overlay';
-    overlay.textcontent = 'fetching subtitles...'; // Placeholder text
+    overlay.textcontent = 'Fetching subtitles...'; // Placeholder text
 
     // Prevent clicks on the overlay from pausing the video
     overlay.addEventListener('mousedown', (e) => e.stopPropagation());
