@@ -73,6 +73,8 @@ function hidePopup(e) {
 }
 
 function disableNetflixSubs() {
+    chrome.storage.local.set({ areMiningSubtitlesEnabled: false })
+
     hidePopup();
     const overlays = document.getElementsByClassName('custom-overlay')
     if (overlays) {
@@ -103,7 +105,18 @@ function createExtensionButtons() {
     toggleButton.classList.add('extension-button', 'toggle-button');
 
     // Add click event to "Turn On/Off" button
-    toggleButton.addEventListener('click', disableNetflixSubs);
+    toggleButton.addEventListener('click', () => {
+        chrome.storage.local.get("areMiningSubtitlesEnabled", (result) => {
+            if (result.areMiningSubtitlesEnabled === true) {
+                disableNetflixSubs()
+                toggleButton.textContent = 'Turn On';
+            }
+            else {
+                chrome.storage.local.set({ areMiningSubtitlesEnabled: true })
+                toggleButton.textContent = 'Turn Off';
+            }
+        })
+    });
 
     // Create the "Settings" button
     const settingsButton = document.createElement('button');

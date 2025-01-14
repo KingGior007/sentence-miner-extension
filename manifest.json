@@ -3,7 +3,7 @@
     "name": "Sentence miner",
     "version": "1.0",
     "description": "Mines words from subtitles and sends them to anki",
-    "permissions": ["activeTab", "scripting"],
+    "permissions": ["activeTab", "scripting", "storage"],
     "host_permissions": ["https://*.netflix.com/*", "https://*.youtube.com/*"],
     "background": {
       "service_worker": "background.js"

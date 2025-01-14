@@ -56,7 +56,6 @@ const setupNetflixObserver = () => {
 };
 
 function setupYoutubeObserver() {
-    createExtensionButtons();
     const countUp = (timeStamp) => {
         function to2Digits(int) {
             return int < 10 ? "0" + String(int) : String(int);
@@ -228,25 +227,39 @@ function setupYoutubeObserver() {
     }
 }
 
-function setPathObserver() {
-    let currentPath;
-    const onDomChange = () => {
-        if (currentPath !== window.location.pathname) {
-            currentPath = window.location.pathname;
+function routeToPath(currentPath) {
+    if (window.location.origin == "https://www.netflix.com" && currentPath.startsWith('/watch')) {
+        console.log("Entered a Netflix watch page.");
+        setupNetflixObserver(); // Function to execute when entering a watch page
+    }
+    else if (window.location.origin == "https://www.youtube.com" && currentPath.startsWith('/watch')) {
+        console.log("Entered a Youtube watch page")
+        setupYoutubeObserver();
+    }
+    else {
+        console.log("Not in the watch page.");
+        disableNetflixSubs();
+    }
+}
 
-            if (window.location.origin == "https://www.netflix.com" && currentPath.startsWith('/watch')) {
-                console.log("Entered a Netflix watch page.");
-                setupNetflixObserver(); // Function to execute when entering a watch page
+function setPathObserver() {
+    let currentPath = null;
+    let areSubsEnabled = null;
+    chrome.storage.local.get("areMiningSubtitlesEnabled", (result) => areSubsEnabled = result.areMiningSubtitlesEnabled)
+    const onDomChange = () => {
+        chrome.storage.local.get("areMiningSubtitlesEnabled", (result) => {
+            const res = result.areMiningSubtitlesEnabled;
+            if (res && (currentPath !== window.location.pathname || areSubsEnabled !== res)) {
+                areSubsEnabled = true;
+                currentPath = window.location.pathname;
+                routeToPath(currentPath);
             }
-            else if (window.location.origin == "https://www.youtube.com" && currentPath.startsWith('/watch')) {
-                console.log("Entered a Youtube watch page")
-                setupYoutubeObserver();
+            else if (!res && (currentPath !== window.location.pathname || areSubsEnabled !== res)) {
+                areSubsEnabled = false;
+                console.log("turned off");
+                disableNetflixSubs()
             }
-            else {
-                console.log("Left the watch page.");
-                disableNetflixSubs();
-            }
-        }
+        });
     };
 
     // Observe changes in the body element
@@ -254,6 +267,7 @@ function setPathObserver() {
     observer.observe(document.body, { childList: true, subtree: true });
 
     console.log("Path observer initialized.");
+    createExtensionButtons()
     onDomChange();
 }
 
