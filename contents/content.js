@@ -1,6 +1,7 @@
 let lastSub;
 const japanesePunctuation = /[！〜、。・：「」『』【】（）［］｛｝！＃＄％＆’（）＊＋，－．／：；＜＝＞＠［＼］＾＿｀｛｜｝～「」『』〆〤… 　 ？♪]/g;
 
+let currentNetflixObserver = null;
 let lastTimeOutIdNetflix = null;
 const setupNetflixObserver = () => {
     try {
@@ -10,14 +11,18 @@ const setupNetflixObserver = () => {
         if (lastTimeOutIdNetflix !== null) {
             clearTimeout(lastTimeOutIdNetflix);
         }
+
+        if (currentNetflixObserver) {
+            currentNetflixObserver.disconnect();
+        }
+
         addOverlay();
         let overlay = document.getElementsByClassName('custom-overlay')[0];
-        overlay.textContent = 'Fetching subtitles...';
+        overlay.innerHTML = "Fetching subtitles";
 
         const observer = new MutationObserver((mutationsList, observer) => {
             container.style.display = "none"
             for (const mutation of mutationsList) {
-                // Only log if added nodes are relevant (i.e., if they contain text)
                 mutation.addedNodes.forEach((node) => {
                     // Ensure the node is an element (not a text node) and contains subtitle text
                     if (node.nodeType === Node.ELEMENT_NODE && node.textContent.trim() && lastSub != node.textContent.trim()) {
@@ -31,8 +36,6 @@ const setupNetflixObserver = () => {
                         }).join('');
 
                         document.querySelectorAll('.segment-word').forEach(span => {
-                            // span.addEventListener('mouseenter', showPopup);
-                            // span.addEventListener('mouseleave', hidePopup);
                             span.tabIndex = 0;
                             span.addEventListener('focus', (e) => showPopup(e, lastSub));
                             span.addEventListener('blur', hidePopup);
@@ -47,6 +50,7 @@ const setupNetflixObserver = () => {
             subtree: true,    // Monitor all nested elements
             attributes: false // Don't track attribute changes (optional)
         });
+        currentNetflixObserver = observer;
 
         console.log("Observer set up successfully!");
     } catch {
