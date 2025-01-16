@@ -101,7 +101,14 @@ function createExtensionButtons() {
 
     // Create the "Turn On/Off" button
     const toggleButton = document.createElement('button');
-    toggleButton.textContent = 'Turn Off';
+    chrome.storage.local.get("areMiningSubtitlesEnabled", (result) => {
+        if (result.areMiningSubtitlesEnabled === true) {
+            toggleButton.textContent = 'Turn Off';
+        }
+        else {
+            toggleButton.textContent = 'Turn On';
+        }
+    })
     toggleButton.classList.add('extension-button', 'toggle-button');
 
     // Add click event to "Turn On/Off" button
