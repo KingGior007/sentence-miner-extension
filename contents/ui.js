@@ -1,27 +1,33 @@
 function addOverlay() {
-    if (document.getElementsByClassName('custom-overlay').length !== 0) return; // Prevent duplicates
-    const overlay = document.createElement('div');
-    overlay.className = 'custom-overlay';
-    overlay.textcontent = 'Fetching subtitles...'; // Placeholder text
+    if (!document.querySelector(".custom-overlay")) {
+        overlay = document.createElement('div');
+        overlay.className = 'custom-overlay';
+        overlay.textContent = 'Fetching subtitles...';
 
-    // Prevent clicks on the overlay from pausing the video
-    overlay.addEventListener('mousedown', (e) => e.stopPropagation());
-    overlay.addEventListener('mouseup', (e) => e.stopPropagation());
-    overlay.addEventListener('click', (e) => e.stopPropagation());
+        overlay.addEventListener('mousedown', (e) => e.stopPropagation());
+        overlay.addEventListener('mouseup', (e) => e.stopPropagation());
+        overlay.addEventListener('click', (e) => e.stopPropagation());
+    }
 
     const youtubePlayer = document.querySelector("div#player")
     if (youtubePlayer) youtubePlayer.appendChild(overlay)
-    else document.body.appendChild(overlay);
+    else if (!document.contains(overlay)) document.body.appendChild(overlay);
 
     document.addEventListener("fullscreenchange", () => {
+        console.log("fullscreenchange");
+        const overlay = document.querySelector(".custom-overlay");
+        const youtubePlayer = document.querySelector("div#player")
         fullscreenElement = document.fullscreenElement;
         if (document.fullscreenElement !== null) {
+            console.log("fullscreen");
             document.fullscreenElement.appendChild(overlay);
         }
         else if (window.location.origin == "https://www.netflix.com") {
+            console.log("net");
             document.body.appendChild(overlay);
         }
         else if (window.location.origin == "https://www.youtube.com") {
+            console.log("yt");
             youtubePlayer.appendChild(overlay);
         }
     })

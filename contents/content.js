@@ -260,7 +260,6 @@ function setPathObserver() {
             }
             else if (!res && (currentPath !== window.location.pathname || areSubsEnabled !== res)) {
                 areSubsEnabled = false;
-                console.log("turned off");
                 disableNetflixSubs()
             }
         });
