@@ -1,3 +1,17 @@
+let lastTimeoutStorage = null;
+
+function waitForStorage(callback) {
+    if (chrome && chrome.storage) {
+        if (lastTimeoutStorage) {
+            clearTimeout(lastTimeoutStorage);
+        }
+        callback();
+    }
+    else if (lastTimeOutIdNetflix == null) {
+        lastTimeoutStorage = setTimeout(() => waitForStorage(callback), 100);
+    }
+}
+
 async function createSentenceCard(word, kana, glosses, lastSub) {
     const url = 'http://localhost:5123/add_card';
     const regex = new RegExp(`(${word})`, 'gi');
@@ -13,7 +27,7 @@ async function createSentenceCard(word, kana, glosses, lastSub) {
             deck: 'Japanese mining deck'
         }),
     });
-    
+
     if (!response.ok) {
         throw new Error(`Response status: ${response.status}`);
     }
@@ -34,21 +48,21 @@ async function getDictionary(word) {
                 no_english: false, // Correct flag
             }),
         });
-        
+
         if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);
         }
-        
+
         const json = await response.json();
-        
+
         // Check for existence of words and return the first word's reading and gloss
         if (json.words && json.words.length > 0) {
             const wordData = json.words[0];
             const kana = wordData.reading?.kana || "No kana available";
             const common = wordData.common ? "common" : "uncommon";
             const glosses = wordData.senses?.[0]?.glosses || "No definition available";
-            
-            return {kana, common, glosses};
+
+            return { kana, common, glosses };
         } else {
             return "No dictionary data found."; // Graceful fallback message
         }

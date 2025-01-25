@@ -248,32 +248,43 @@ function routeToPath(currentPath) {
 
 function setPathObserver() {
     let currentPath = null;
-    let areSubsEnabled = null;
-    chrome.storage.local.get("areMiningSubtitlesEnabled", (result) => areSubsEnabled = result.areMiningSubtitlesEnabled)
-    const onDomChange = () => {
-        chrome.storage.local.get("areMiningSubtitlesEnabled", (result) => {
-            const res = result.areMiningSubtitlesEnabled;
-            if (res && (currentPath !== window.location.pathname || areSubsEnabled !== res)) {
-                areSubsEnabled = true;
-                currentPath = window.location.pathname;
-                routeToPath(currentPath);
-            }
-            else if (!res && (currentPath !== window.location.pathname || areSubsEnabled !== res)) {
-                areSubsEnabled = false;
-                disableNetflixSubs()
-            }
+
+    chrome.storage.local.get("areMiningSubtitlesEnabled", (result) => {
+        let areSubsEnabled = result.areMiningSubtitlesEnabled;
+
+        const onDomChange = () => {
+            chrome.storage.local.get("areMiningSubtitlesEnabled", (result) => {
+                if (chrome.runtime.lastError) {
+                    console.error("Context invalidated", chrome.runtime.lastError.message);
+                    return;
+                }
+
+                const res = result.areMiningSubtitlesEnabled;
+                if (res && (currentPath !== window.location.pathname || areSubsEnabled !== res)) {
+                    areSubsEnabled = true;
+                    currentPath = window.location.pathname;
+                    routeToPath(currentPath);
+                }
+            });
+        };
+
+        // Observe changes in the body element
+        const observer = new MutationObserver(onDomChange);
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        console.log("Path observer initialized.");
+        createExtensionButtons()
+        onDomChange();
+
+        window.addEventListener("unload", () => {
+            observer.disconnect();
         });
-    };
-
-    // Observe changes in the body element
-    const observer = new MutationObserver(onDomChange);
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    console.log("Path observer initialized.");
-    createExtensionButtons()
-    onDomChange();
+    });
 }
 
 window.addEventListener('load', () => {
-    setPathObserver();
+    waitForStorage(() => {
+        setPathObserver();
+    })
 });
+
