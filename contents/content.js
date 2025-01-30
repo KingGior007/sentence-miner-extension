@@ -1,6 +1,10 @@
 let lastSub;
 const japanesePunctuation = /[！〜、。・：「」『』【】（）［］｛｝！＃＄％＆’（）＊＋，－．／：；＜＝＞＠［＼］＾＿｀｛｜｝～「」『』〆〤… 　 ？♪]/g;
 
+chrome.runtime.onMessage.addListener((message, sender, response) => {
+    console.log(message.word);
+});
+
 let currentNetflixObserver = null;
 let lastTimeOutIdNetflix = null;
 const setupNetflixObserver = () => {
