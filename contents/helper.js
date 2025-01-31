@@ -76,3 +76,14 @@ function isJapanese(text) {
     const japaneseRegex = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/gu;
     return japaneseRegex.test(text);
 }
+
+function segment(sentence) {
+    const segmenter = new Intl.Segmenter('ja-JP', { granularity: 'word' });
+    const segments = [...segmenter.segment(sentence)].map(segment => segment.segment); // TODO: Use a function with @params sentence
+    const result = segments.map((segment) => {
+        if (segment.match(japanesePunctuation)) return `<span>${segment}</span>`;
+        else return `<span class="segment-word" data-word="${segment}">${segment}</span>`
+    }).join('');
+
+    return result;
+}
