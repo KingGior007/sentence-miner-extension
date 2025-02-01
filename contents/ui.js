@@ -17,17 +17,16 @@ function addOverlay() {
         console.log("fullscreenchange");
         const overlay = document.querySelector(".custom-overlay");
         const youtubePlayer = document.querySelector("div#player")
-        fullscreenElement = document.fullscreenElement;
+        if (!overlay) {
+            return;
+        }
         if (document.fullscreenElement !== null) {
-            console.log("fullscreen");
             document.fullscreenElement.appendChild(overlay);
         }
         else if (window.location.origin == "https://www.netflix.com") {
-            console.log("net");
             document.body.appendChild(overlay);
         }
         else if (window.location.origin == "https://www.youtube.com") {
-            console.log("yt");
             youtubePlayer.appendChild(overlay);
         }
     })
