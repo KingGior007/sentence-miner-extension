@@ -3,37 +3,59 @@
     bottom: 15%;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(255, 255, 255, 0.8); /* Slightly darker for better contrast */
-    color: #222; /* Softer white for less strain on the eyes */
-    padding: 15px 20px; /* Add more padding for better spacing */
-    border-radius: 12px; /* Slightly more rounded corners */
-    font-size: 28px; /* Slightly smaller for elegance */
-    font-weight: 500; /* Medium weight for readability */
+    background: rgba(255, 255, 255, 0.8);
+    /* Slightly darker for better contrast */
+    color: #222;
+    /* Softer white for less strain on the eyes */
+    padding: 15px 20px;
+    /* Add more padding for better spacing */
+    border-radius: 12px;
+    /* Slightly more rounded corners */
+    font-size: 28px;
+    /* Slightly smaller for elegance */
+    font-weight: 500;
+    /* Medium weight for readability */
     z-index: 9999;
-    pointer-events: auto; /* Allow interactions */
-    user-select: text; /* Make text selectable */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Stronger shadow for depth */
-    text-align: center; /* Ensure content is centered */
-    max-width: 80%; /* Limit the width to a percentage of the viewport */
-    word-wrap: break-word; /* Handle long words gracefully */
-    overflow-wrap: break-word; /* Additional compatibility for wrapping */
+    pointer-events: auto;
+    /* Allow interactions */
+    user-select: text;
+    /* Make text selectable */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    /* Stronger shadow for depth */
+    text-align: center;
+    /* Ensure content is centered */
+    max-width: 80%;
+    /* Limit the width to a percentage of the viewport */
+    word-wrap: break-word;
+    /* Handle long words gracefully */
+    overflow-wrap: break-word;
+    /* Additional compatibility for wrapping */
 }
 
 
 .dictionary-popup {
     position: absolute;
-    background-color: rgba(255, 255, 255, 0.95); /* Slightly more opaque for better readability */
-    color: #222; /* Darker text for improved contrast */
-    border: 1px solid rgba(0, 0, 0, 0.15); /* Softer border for subtler definition */
-    border-radius: 12px; /* More rounded corners for a modern look */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25); /* Stronger shadow for a lifted appearance */
-    padding: 12px 18px; /* Adjusted padding for better spacing */
-    max-width: 320px; /* Slightly larger for readability */
+    background-color: rgba(255, 255, 255, 0.95);
+    /* Slightly more opaque for better readability */
+    color: #222;
+    /* Darker text for improved contrast */
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    /* Softer border for subtler definition */
+    border-radius: 12px;
+    /* More rounded corners for a modern look */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+    /* Stronger shadow for a lifted appearance */
+    padding: 12px 18px;
+    /* Adjusted padding for better spacing */
+    max-width: 320px;
+    /* Slightly larger for readability */
     word-wrap: break-word;
     z-index: 1000;
     font-family: 'Arial', sans-serif;
-    font-size: 16px; /* Larger font for readability */
-    line-height: 1.6; /* Better spacing for easier reading */
+    font-size: 16px;
+    /* Larger font for readability */
+    line-height: 1.6;
+    /* Better spacing for easier reading */
     pointer-events: auto;
     user-select: text;
 }
@@ -42,84 +64,124 @@
     content: '';
     position: absolute;
     bottom: -10px;
-    left: 30px; /* Adjusted alignment */
+    left: 30px;
+    /* Adjusted alignment */
     width: 0;
     height: 0;
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
-    border-top: 10px solid rgba(255, 255, 255, 0.95); /* Matches the popup background */
-    filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.25)); /* Stronger shadow for consistency */
+    border-top: 10px solid rgba(255, 255, 255, 0.95);
+    /* Matches the popup background */
+    filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.25));
+    /* Stronger shadow for consistency */
 }
 
 .segment-word {
-    color: #333; /* Neutral dark gray for default text */
-    cursor: pointer; /* Pointer cursor to indicate interactivity */
-    transition: color 0.2s ease-in-out, text-decoration 0.2s ease-in-out, transform 0.1s ease; /* Add transform for smooth clicking */
+    color: #333;
+    /* Neutral dark gray for default text */
+    cursor: pointer;
+    /* Pointer cursor to indicate interactivity */
+    transition: color 0.2s ease-in-out, text-decoration 0.2s ease-in-out, transform 0.1s ease;
+    /* Add transform for smooth clicking */
 }
 
 .segment-word:hover {
     text-decoration: dotted underline;
-    color: #000; /* Slightly darker gray/black for hover state */
+    color: #000;
+    /* Slightly darker gray/black for hover state */
 }
 
 .segment-word:focus {
     text-decoration: solid underline;
-    color: #000; /* Same darker gray/black for focus state */
-    outline: none; /* Remove focus outline for a cleaner look */
+    color: #000;
+    /* Same darker gray/black for focus state */
+    outline: none;
+    /* Remove focus outline for a cleaner look */
 }
 
 .segment-word:hover:focus {
     text-decoration: solid underline;
-    color: #222; /* Slightly lighter black for hover + focus state */
+    color: #222;
+    /* Slightly lighter black for hover + focus state */
 }
 
 .segment-word:active {
-    transform: scale(0.97); /* Subtle "press" effect when clicked */
-    color: #111; /* Darker shade for active state */
-    text-decoration: solid underline; /* Reinforce interactivity */
+    transform: scale(0.97);
+    /* Subtle "press" effect when clicked */
+    color: #111;
+    /* Darker shade for active state */
+    text-decoration: solid underline;
+    /* Reinforce interactivity */
 }
 
 .common-tag {
-    display: inline-block; /* Ensure it behaves like a tag */
-    background-color: #007bff; /* Subtle blue background */
-    color: #fff; /* White text for contrast */
-    font-size: 12px; /* Small text for tag-like appearance */
-    font-weight: bold; /* Make the text stand out */
-    padding: 2px 6px; /* Add some padding for spacing */
-    border-radius: 12px; /* Rounded edges for a clean look */
-    text-transform: uppercase; /* All caps for consistency */
-    margin-left: 8px; /* Add spacing if placed next to other elements */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Slight shadow for depth */
+    display: inline-block;
+    /* Ensure it behaves like a tag */
+    background-color: #007bff;
+    /* Subtle blue background */
+    color: #fff;
+    /* White text for contrast */
+    font-size: 12px;
+    /* Small text for tag-like appearance */
+    font-weight: bold;
+    /* Make the text stand out */
+    padding: 2px 6px;
+    /* Add some padding for spacing */
+    border-radius: 12px;
+    /* Rounded edges for a clean look */
+    text-transform: uppercase;
+    /* All caps for consistency */
+    margin-left: 8px;
+    /* Add spacing if placed next to other elements */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* Slight shadow for depth */
 }
 
 .anki-button {
-    display: inline-block; /* Behaves like a button */
-    background-color: #4caf50; /* Green color to indicate success */
-    color: #fff; /* White text for contrast */
-    font-size: 16px; /* Medium font size */
-    font-weight: bold; /* Emphasize the button text */
-    padding: 5px 10px; /* Add spacing for a comfortable click area */
-    border: none; /* Remove default borders */
-    border-radius: 8px; /* Slightly rounded corners */
-    cursor: pointer; /* Pointer cursor for interactivity */
-    transition: transform 0.1s ease-in-out, background-color 0.2s ease; /* Smooth transitions */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    display: inline-block;
+    /* Behaves like a button */
+    background-color: #4caf50;
+    /* Green color to indicate success */
+    color: #fff;
+    /* White text for contrast */
+    font-size: 16px;
+    /* Medium font size */
+    font-weight: bold;
+    /* Emphasize the button text */
+    padding: 5px 10px;
+    /* Add spacing for a comfortable click area */
+    border: none;
+    /* Remove default borders */
+    border-radius: 8px;
+    /* Slightly rounded corners */
+    cursor: pointer;
+    /* Pointer cursor for interactivity */
+    transition: transform 0.1s ease-in-out, background-color 0.2s ease;
+    /* Smooth transitions */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    /* Subtle shadow for depth */
     margin-left: 8px;
 }
 
 .anki-button:hover {
-    background-color: #45a049; /* Slightly darker green for hover */
+    background-color: #45a049;
+    /* Slightly darker green for hover */
 }
 
 .anki-button:active {
-    transform: scale(0.97); /* Slightly "press" the button */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Reduce shadow depth */
-    background-color: #3e8e41; /* Darker green for active state */
+    transform: scale(0.97);
+    /* Slightly "press" the button */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    /* Reduce shadow depth */
+    background-color: #3e8e41;
+    /* Darker green for active state */
 }
 
 .anki-button:focus {
-    outline: none; /* Remove focus outline for a cleaner look */
-    box-shadow: 0 0 0 3px rgba(72, 239, 112, 0.5); /* Add focus ring for accessibility */
+    outline: none;
+    /* Remove focus outline for a cleaner look */
+    box-shadow: 0 0 0 3px rgba(72, 239, 112, 0.5);
+    /* Add focus ring for accessibility */
 }
 
 /* Styles for the button container */
@@ -129,7 +191,8 @@
     right: 10px;
     display: flex;
     flex-direction: column;
-    z-index: 9999; /* Ensure it's above other elements */
+    z-index: 9999;
+    /* Ensure it's above other elements */
 }
 
 /* Common styles for both buttons */
@@ -152,4 +215,16 @@
 /* "Settings" button styles */
 .settings-button {
     background-color: #4caf50;
+}
+
+.sidebar {
+    position: fixed;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 150px;
+    background: #11101D;
+    padding: 6px 14px;
+    z-index: 1000;
+    transition: all 0.5s ease;
 }

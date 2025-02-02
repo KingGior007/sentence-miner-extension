@@ -97,6 +97,12 @@ function disableNetflixSubs() {
     }
 }
 
+function enableSettings() {
+    const sidebar = document.createElement('div');
+    sidebar.classList.add('sidebar');
+    document.body.appendChild(sidebar);
+}
+
 function createExtensionButtons() {
     // Create a container for the buttons
     const buttonContainer = document.createElement('div');
@@ -139,6 +145,15 @@ function createExtensionButtons() {
     const settingsButton = document.createElement('button');
     settingsButton.textContent = 'Settings';
     settingsButton.classList.add('extension-button', 'settings-button');
+    settingsButton.addEventListener("click", () => {
+        const sidebar = document.querySelector(".sidebar");
+        if (!sidebar) {
+            enableSettings()
+        }
+        else {
+            sidebar.remove()
+        }
+    })
 
     // Append buttons to the container
     buttonContainer.appendChild(toggleButton);
