@@ -14,7 +14,6 @@ function addOverlay() {
     else if (!document.contains(overlay)) document.body.appendChild(overlay);
 
     document.addEventListener("fullscreenchange", () => {
-        console.log("fullscreenchange");
         const overlay = document.querySelector(".custom-overlay");
         const youtubePlayer = document.querySelector("div#player")
         if (!overlay) {

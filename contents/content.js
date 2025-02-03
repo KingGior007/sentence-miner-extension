@@ -2,7 +2,6 @@ let lastSub;
 const japanesePunctuation = /[！〜、。・：「」『』【】（）［］｛｝！＃＄％＆’（）＊＋，－．／：；＜＝＞＠［＼］＾＿｀｛｜｝～「」『』〆〤… 　 ？♪]/g;
 
 chrome.runtime.onMessage.addListener((message) => {
-    console.log(message.word);
     let overlay = document.getElementsByClassName('custom-overlay')[0];
     if (!overlay) {
         return
@@ -144,7 +143,7 @@ function setupYoutubeObserver() {
             captions.click()
         }
 
-        // NOTE probably make an observer to hide the subs
+        // NOTE: probably make an observer to hide the subs
         let container;
         const subContainers = document.querySelectorAll("ytd-engagement-panel-section-list-renderer.style-scope.ytd-watch-flexy");
 
@@ -179,8 +178,7 @@ function setupYoutubeObserver() {
                             break;
                         }
                     }
-                    if (currentSubtitle === undefined) { console.log("returning", `subtitle: ${currentSubtitle}`); return };
-                    // if (!isJapanese(lastSub)) {overlay.remove(); return};
+                    if (currentSubtitle === undefined) return;
 
                     const segmenter = new Intl.Segmenter('ja-JP', { granularity: 'word' });
                     const segments = [...segmenter.segment(currentSubtitle)].map(segment => segment.segment);
@@ -214,12 +212,6 @@ function setupYoutubeObserver() {
                 }
 
                 if (currentSubtitle === undefined) return;
-                // if (!isJapanese(lastSub)) {
-                //     overlay.remove();
-                //     document.querySelector(".ytp-chrome-bottom").style.display = "block";
-                //     container.setAttribute("visibility", "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN");
-                //     return
-                // };
 
                 const segmenter = new Intl.Segmenter('ja-JP', { granularity: 'word' });
                 const segments = [...segmenter.segment(currentSubtitle)].map(segment => segment.segment.replace("<", "").replace(">", ""));

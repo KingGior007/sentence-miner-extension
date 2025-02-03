@@ -7,7 +7,6 @@ chrome.runtime.onInstalled.addListener(function() {
 });
 chrome.contextMenus.onClicked.addListener((info, tab) => {
 	if (info.menuItemId === "manual-segmentation") {
-		console.log(info.selectionText);
 		chrome.tabs.sendMessage(tab.id, { word: info.selectionText })
 	}
 });
