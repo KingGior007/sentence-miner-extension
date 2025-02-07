@@ -39,3 +39,30 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 	}
 });
 
+chrome.runtime.onMessage.addListener((message) => {
+	if (message.action !== "Known-word") {
+		console.log("no");
+		return;
+	}
+	else {
+		console.log("yes");
+	}
+
+	let open = indexedDB.open("known-words", 3);
+
+	open.onsuccess = (e) => {
+		let db = e.target.result
+		let store = db.transaction("words", "readwrite").objectStore("words");
+
+		let req = store.index("word-index").get(message.word);
+		req.onsuccess = function() {
+			console.log(req.result?.word);
+
+			let request = store.add({ word: message.word, known: true });
+			request.onsuccess = () => {
+				console.log(request.result);
+			}
+		};
+	}
+})
+
