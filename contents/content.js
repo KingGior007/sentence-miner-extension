@@ -1,5 +1,5 @@
 let lastSub;
-const japanesePunctuation = /[！〜、。・：「」『』【】（）［］｛｝！＃＄％＆’（）＊＋，－．／：；＜＝＞＠［＼］＾＿｀｛｜｝～「」『』〆〤… 　 ？♪]/g;
+const japanesePunctuation = /[！〜、。・：「」『』【】（）［］｛｝！＃＄％＆’（）＊＋，－．／：；＜＝＞＠［＼］＾＿｀｛｜｝～「」『』〆〤… 　 ？♪⸺]/g;
 
 chrome.runtime.onMessage.addListener((message) => {
     let overlay = document.getElementsByClassName('custom-overlay')[0];
