@@ -1,7 +1,6 @@
 let open = indexedDB.open("known-words", 3);
 open.onupgradeneeded = (e) => {
     let db = e.target.result;
-    db.deleteObjectStore("words");
     let objectStore = db.createObjectStore("words", { keyPath: "id", autoIncrement: true });
     objectStore.createIndex("word-index", "word", { unique: true });
 }
@@ -24,33 +23,71 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     }
 });
 
-chrome.runtime.onMessage.addListener((message) => {
-    if (message.action !== "Known-word") {
-        console.log("no");
-        return;
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    switch (message.action) {
+        case "add-known-word":
+            // Takes in .word
+            addKnownWord();
+            break;
+        case "known-list":
+            // Takes in .wordList
+            knownList(sendResponse);
+            return true;
+        default:
+            console.log("Invalid action");
     }
-    else {
-        console.log("yes");
+
+    function addKnownWord() {
+        let open = indexedDB.open("known-words", 3);
+
+        open.onsuccess = (e) => {
+            let db = e.target.result;
+            let store = db.transaction("words", "readwrite").objectStore("words");
+
+            let req = store.index("word-index").get(message.word);
+            req.onsuccess = function() {
+                if (req.result !== undefined) {
+                    console.log("Already found");
+                    return;
+                }
+
+                let request = store.add({ word: message.word, known: true });
+                request.onsuccess = () => {
+                    console.log(request.result);
+                }
+            };
+        }
     }
 
-    let open = indexedDB.open("known-words", 3);
+    function knownList(sendResponse) {
+        let open = indexedDB.open("known-words", 3);
+        let knownList = [];
+        console.log(message.wordList);
 
-    open.onsuccess = (e) => {
-        let db = e.target.result
-        let store = db.transaction("words", "readwrite").objectStore("words");
+        open.onsuccess = (e) => {
+            let db = e.target.result;
+            let store = db.transaction("words", "readwrite").objectStore("words");
 
-        let req = store.index("word-index").get(message.word);
-        req.onsuccess = function() {
-            if (req.result !== undefined) {
-                console.log("Already found");
-                return;
-            }
+            console.log(message.wordList);
+            let pending = message.wordList.length;
+            message.wordList.forEach((word) => {
+                console.log(word);
+                let request = store.index("word-index").get(word);
+                request.onsuccess = () => {
+                    console.log(request.result !== undefined);
+                    knownList.push(request.result !== undefined);
+                    pending--;
 
-            let request = store.add({ word: message.word, known: true });
-            request.onsuccess = () => {
-                console.log(request.result);
-            }
-        };
+                    if (pending === 0) {
+                        console.log(knownList);
+                        sendResponse(knownList);
+                    }
+                }
+            });
+
+            console.log(knownList);
+            return knownList;
+        }
     }
 })
 

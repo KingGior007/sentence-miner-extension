@@ -28,7 +28,7 @@ async function createSentenceCard(word, kana, glosses, lastSub) {
         }),
     });
 
-    chrome.runtime.sendMessage({ action: "Known-word", word: word }, () => { console.log("sent") })
+    chrome.runtime.sendMessage({ action: "add-known-word", word: word }, () => { console.log("sent") })
 
     if (!response.ok) {
         throw new Error(`Response status: ${response.status}`);

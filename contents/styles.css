@@ -114,6 +114,28 @@
     /* Reinforce interactivity */
 }
 
+.segment-word.known {
+    color: #4caf50;
+    /* Green color for known words */
+    text-decoration: solid underline;
+    /* Strikethrough to indicate the word is known */
+    transform: scale(1);
+    /* No scale effect to keep the word at normal size */
+    cursor: default;
+    /* No cursor pointer to indicate no more interaction */
+}
+
+.segment-word.known:hover,
+.segment-word.known:focus,
+.segment-word.known:active {
+    text-decoration: solid underline;
+    /* Keep the strikethrough */
+    color: #4caf50;
+    /* Maintain the green color */
+    transform: none;
+    /* No transform to maintain the "known" appearance */
+}
+
 .common-tag {
     display: inline-block;
     /* Ensure it behaves like a tag */
