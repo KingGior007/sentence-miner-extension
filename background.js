@@ -6,21 +6,6 @@ open.onupgradeneeded = (e) => {
     objectStore.createIndex("word-index", "word", { unique: true });
 }
 
-open.onsuccess = (e) => {
-    let db = e.target.result;
-    let store = db.transaction("words", "readwrite").objectStore("words");
-    let request = store.add({ word: "word1", known: true });
-    request.onsuccess = function() {
-        console.log(request.result);
-
-        let req = store.index("word-index").get("word1");
-        req.onsuccess = function() {
-            console.log(req.result.word);
-            store.clear()
-        };
-    };
-}
-
 chrome.runtime.onInstalled.addListener(function() {
     chrome.contextMenus.create({
         id: "manual-segmentation",
@@ -56,7 +41,10 @@ chrome.runtime.onMessage.addListener((message) => {
 
         let req = store.index("word-index").get(message.word);
         req.onsuccess = function() {
-            console.log(req.result?.word);
+            if (req.result !== undefined) {
+                console.log("Already found");
+                return;
+            }
 
             let request = store.add({ word: message.word, known: true });
             request.onsuccess = () => {
