@@ -100,6 +100,29 @@ function enableSettings() {
     const sidebar = document.createElement('div');
     sidebar.classList.add('sidebar');
     document.body.appendChild(sidebar);
+
+    const loadAnki = document.createElement('button');
+    loadAnki.textContent = "Load from anki";
+    loadAnki.classList.add('sidebarButton');
+    sidebar.appendChild(loadAnki);
+    sidebar.addEventListener("click", () => {
+        fetch("http://localhost:5123/get_known_core_words", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                deck: "Core 2k/6k Optimized Japanese Vocabulary",
+                wordField: "Vocabulary-Kanji"
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                chrome.runtime.sendMessage({ action: "add-known-words", wordList: data.words });
+            })
+            .catch(error => console.error("Error:", error));
+    })
 }
 
 function createExtensionButtons() {

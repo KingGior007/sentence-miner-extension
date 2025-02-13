@@ -33,6 +33,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             // Takes in .wordList
             knownList(sendResponse);
             return true;
+        case "add-known-words":
+            // Takes in .wordList
+            addKnownWords();
+            break;
         default:
             console.log("Invalid action");
     }
@@ -66,12 +70,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         open.onsuccess = (e) => {
             let db = e.target.result;
-            let store = db.transaction("words", "readwrite").objectStore("words");
 
             console.log(message.wordList);
             let pending = message.wordList.length;
             message.wordList.forEach((word) => {
                 console.log(word);
+                let store = db.transaction("words", "readonly").objectStore("words");
                 let request = store.index("word-index").get(word);
                 request.onsuccess = () => {
                     console.log(request.result !== undefined);
@@ -87,6 +91,30 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
             console.log(knownList);
             return knownList;
+        }
+    }
+
+    function addKnownWords() {
+        let open = indexedDB.open("known-words", 3);
+
+        open.onsuccess = (e) => {
+            let db = e.target.result;
+
+            console.log(message.wordList)
+            message.wordList.forEach((word) => {
+                let store = db.transaction("words", "readwrite").objectStore("words");
+                let req = store.index("word-index").get(word);
+
+                req.onsuccess = function() {
+                    if (req.result !== undefined) {
+                        console.log("Already found");
+                        return;
+                    }
+
+                    console.log(word)
+                    const result = store.add({ word: word, known: true });
+                }
+            });
         }
     }
 })

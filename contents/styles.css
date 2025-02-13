@@ -161,27 +161,16 @@
 
 .anki-button {
     display: inline-block;
-    /* Behaves like a button */
     background-color: #4caf50;
-    /* Green color to indicate success */
     color: #fff;
-    /* White text for contrast */
     font-size: 16px;
-    /* Medium font size */
     font-weight: bold;
-    /* Emphasize the button text */
     padding: 5px 10px;
-    /* Add spacing for a comfortable click area */
     border: none;
-    /* Remove default borders */
     border-radius: 8px;
-    /* Slightly rounded corners */
     cursor: pointer;
-    /* Pointer cursor for interactivity */
     transition: transform 0.1s ease-in-out, background-color 0.2s ease;
-    /* Smooth transitions */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    /* Subtle shadow for depth */
     margin-left: 8px;
 }
 
@@ -249,4 +238,23 @@
     padding: 6px 14px;
     z-index: 1000;
     transition: all 0.5s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+}
+
+.sidebarButton {
+    display: inline-block;
+    background-color: #FF5733;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.1s ease-in-out, background-color 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-left: 8px;
 }
