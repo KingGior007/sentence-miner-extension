@@ -105,7 +105,7 @@ function enableSettings() {
     loadAnki.textContent = "Load from anki";
     loadAnki.classList.add('sidebarButton');
     sidebar.appendChild(loadAnki);
-    sidebar.addEventListener("click", () => {
+    loadAnki.addEventListener("click", () => {
         fetch("http://localhost:5123/get_known_core_words", {
             method: "POST",
             headers: {
