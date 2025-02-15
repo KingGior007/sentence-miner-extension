@@ -12,7 +12,11 @@
       {
         "matches": ["https://www.netflix.com/*", "https://www.youtube.com/*"],
         "css": ["contents/styles.css"],
-        "js": ["contents/helper.js", "contents/ui/subtitles.js", "contents/ui/settings.js", "contents/ui/lookups.js", "contents/content.js"],
+        "js": [
+        "contents/helper.js",
+        "contents/ui/subtitles.js", "contents/ui/settings.js", "contents/ui/lookups.js",
+        "contents/manual-segmentation.js", "contents/netflix.js", "contents/youtube.js", "contents/routes.js"
+      ],
         "type": "module"
       }
     ]
