@@ -15,7 +15,7 @@
         "js": [
         "contents/helper.js",
         "contents/ui/subtitles.js", "contents/ui/settings.js", "contents/ui/lookups.js",
-        "contents/manual-segmentation.js", "contents/netflix.js", "contents/youtube.js", "contents/routes.js"
+        "contents/manual-segmentation.js", "contents/subtitles/netflix.js", "contents/subtitles/youtube.js", "contents/routes.js"
       ],
         "type": "module"
       }
