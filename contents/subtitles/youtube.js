@@ -1,20 +1,89 @@
+const countUp = (timeStamp) => {
+    function to2Digits(int) {
+        return int < 10 ? "0" + String(int) : String(int);
+    }
+
+    let [minute, second] = timeStamp.split(":").map(Number); // Ensure minute is first, second is second
+    second += 1; // Increment seconds
+
+    if (second > 59) {
+        minute++;   // Increment minute if seconds exceed 59
+        second = 0; // Reset seconds to 0
+    }
+
+    return minute + ":" + to2Digits(second); // Return formatted time
+};
+
+function getTranscript() {
+    const subContainers = document.querySelectorAll("ytd-engagement-panel-section-list-renderer.style-scope.ytd-watch-flexy");
+
+    for (const subContainer of subContainers) {
+        const computedStyle = getComputedStyle(subContainer);
+        if (computedStyle.order && Number(computedStyle.order) <= 0 &&
+            subContainer.getAttribute("target-id") == "engagement-panel-searchable-transcript") {
+            return subContainer;
+        }
+    }
+    return null
+}
+
+function getSubtitle(subtitles, currentSubtitle, lastTimeStampUpdate) {
+    for (const subtitle of subtitles) {
+        if (subtitle.children[0].children[0].children[0].textContent.trim() === String(lastTimeStampUpdate).trim() &&
+            currentSubtitle !== subtitle.children[0].children[2].textContent.trim()) {
+
+            return subtitle.children[0].children[2].textContent.trim();
+        }
+    }
+}
+
+function processSubtitle(currentSubtitle, overlay) {
+    const segmenter = new Intl.Segmenter('ja-JP', { granularity: 'word' });
+    const segments = [...segmenter.segment(currentSubtitle)].map(segment => segment.segment);
+    overlay.innerHTML = segments.map((segment) => {
+        if (segment.match(japanesePunctuation)) return `<span>${segment}</span>`;
+        else return `<span class="segment-word" data-word="${segment}">${segment}</span>`;
+    }).join('');
+
+    document.querySelectorAll('.segment-word').forEach(span => {
+        span.tabIndex = 0;
+        span.addEventListener('focus', (e) => showPopup(e, currentSubtitle));
+        span.addEventListener('blur', hidePopup);
+    });
+}
+
+function getIsPaused() {
+    const targetNode = document.querySelector('#movie_player');
+
+    if (targetNode) {
+        const observer = new MutationObserver((mutationsList) => {
+            for (const mutation of mutationsList) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    const element = mutation.target;
+                    if (element.classList.contains("paused-mode")) {
+                        isPaused = true;
+                    }
+                    else {
+                        isPaused = false;
+                    }
+                }
+            }
+        });
+
+        const config = {
+            attributes: true,
+            attributeFilter: ['class'],
+        };
+
+        observer.observe(targetNode, config);
+
+        console.log('Mutation observer is active');
+    } else {
+        console.error('Target node not found');
+    }
+}
+
 function setupYoutubeObserver() {
-    const countUp = (timeStamp) => {
-        function to2Digits(int) {
-            return int < 10 ? "0" + String(int) : String(int);
-        }
-
-        let [minute, second] = timeStamp.split(":").map(Number); // Ensure minute is first, second is second
-        second += 1; // Increment seconds
-
-        if (second > 59) {
-            minute++;   // Increment minute if seconds exceed 59
-            second = 0; // Reset seconds to 0
-        }
-
-        return minute + ":" + to2Digits(second); // Return formatted time
-    };
-
     let currentSubtitle;
     let isPaused = true;
     addOverlay();
@@ -23,60 +92,27 @@ function setupYoutubeObserver() {
     overlay.textContent = "Fetching subtitles";
     let lastIntervalId = null;
 
-    function getIsPaused() {
-        const targetNode = document.querySelector('#movie_player');
-
-        if (targetNode) {
-            const observer = new MutationObserver((mutationsList) => {
-                for (const mutation of mutationsList) {
-                    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                        const element = mutation.target;
-                        if (element.classList.contains("paused-mode")) {
-                            isPaused = true;
-                        }
-                        else {
-                            isPaused = false;
-                        }
-                    }
-                }
-            });
-
-            const config = {
-                attributes: true,
-                attributeFilter: ['class'],
-            };
-
-            observer.observe(targetNode, config);
-
-            console.log('Mutation observer is active');
-        } else {
-            console.error('Target node not found');
-        }
-    }
     try {
+        // Remove a bad looking gradient
         document.querySelector(".ytp-gradient-bottom").style.display = "none";
+        // Disable youtube's subtitles
+
+        // NOTE: probably make an observer to hide the subs
         let captions = document.querySelector("button.ytp-subtitles-button.ytp-button");
         if (captions && captions.getAttribute("aria-pressed") == "true") {
             captions.click()
         }
 
-        // NOTE: probably make an observer to hide the subs
-        let container;
-        const subContainers = document.querySelectorAll("ytd-engagement-panel-section-list-renderer.style-scope.ytd-watch-flexy");
+        // Get the subtitle container
+        let transcript = getTranscript();
 
-        for (const subContainer of subContainers) {
-            const computedStyle = getComputedStyle(subContainer);
-            if (computedStyle.order && Number(computedStyle.order) <= 0 &&
-                subContainer.getAttribute("target-id") == "engagement-panel-searchable-transcript") {
-                container = subContainer;
-                break;
-            }
-        }
-
-        if (container) {
+        if (transcript) {
             let lastTimeStampUpdate;
             const timeStampContainer = document.querySelector(".ytp-time-current")
-            container.setAttribute("visibility", "ENGAGEMENT_PANEL_VISIBILITY_EXPANDED");
+
+            // Expand the transcript
+            transcript.setAttribute("visibility", "ENGAGEMENT_PANEL_VISIBILITY_EXPANDED");
+
             const observerConfig = {
                 childList: true, // Detects changes to the children of the target node
                 subtree: true,   // Ensures observation extends to all descendants
@@ -87,28 +123,11 @@ function setupYoutubeObserver() {
                 if (lastTimeStampUpdate && !isPaused) {
                     lastTimeStampUpdate = countUp(lastTimeStampUpdate);
                     const subtitles = document.querySelectorAll("ytd-transcript-segment-renderer.style-scope.ytd-transcript-segment-list-renderer");
-                    for (const subtitle of subtitles) {
-                        if (subtitle.children[0].children[0].children[0].textContent.trim() === String(lastTimeStampUpdate).trim() &&
-                            currentSubtitle !== subtitle.children[0].children[2].textContent.trim()) {
-                            if (currentSubtitle !== subtitle.children[0].children[2].textContent.trim())
-                                currentSubtitle = subtitle.children[0].children[2].textContent.trim();
-                            break;
-                        }
-                    }
+
+                    currentSubtitle = getSubtitle(subtitles, currentSubtitle, lastTimeStampUpdate)
                     if (currentSubtitle === undefined) return;
 
-                    const segmenter = new Intl.Segmenter('ja-JP', { granularity: 'word' });
-                    const segments = [...segmenter.segment(currentSubtitle)].map(segment => segment.segment);
-                    overlay.innerHTML = segments.map((segment) => {
-                        if (segment.match(japanesePunctuation)) return `<span>${segment}</span>`;
-                        else return `<span class="segment-word" data-word="${segment}">${segment}</span>`;
-                    }).join('');
-
-                    document.querySelectorAll('.segment-word').forEach(span => {
-                        span.tabIndex = 0;
-                        span.addEventListener('focus', (e) => showPopup(e, currentSubtitle));
-                        span.addEventListener('blur', hidePopup);
-                    });
+                    processSubtitle(currentSubtitle, overlay);
                 }
             }
 
@@ -120,28 +139,11 @@ function setupYoutubeObserver() {
                     clearInterval(lastIntervalId);
                     lastIntervalId = setInterval(updateTimeStamp, 1000);
                 }
-                for (const subtitle of subtitles) {
-                    if (subtitle.children[0].children[0].children[0].textContent.trim() === String(timeStamp).trim() &&
-                        currentSubtitle !== subtitle.children[0].children[2].textContent.trim()) {
-                        currentSubtitle = subtitle.children[0].children[2].textContent;
-                        break;
-                    }
-                }
 
+                currentSubtitle = getSubtitle(subtitles, currentSubtitle, lastTimeStampUpdate);
                 if (currentSubtitle === undefined) return;
 
-                const segmenter = new Intl.Segmenter('ja-JP', { granularity: 'word' });
-                const segments = [...segmenter.segment(currentSubtitle)].map(segment => segment.segment.replace("<", "").replace(">", ""));
-                overlay.innerHTML = segments.map((segment) => {
-                    if (segment.match(japanesePunctuation)) return `<span>${segment}</span>`;
-                    else return `<span class="segment-word" data-word="${segment}">${segment}</span>`;
-                }).join('');
-
-                document.querySelectorAll('.segment-word').forEach(span => {
-                    span.tabIndex = 0;
-                    span.addEventListener('focus', (e) => showPopup(e, currentSubtitle));
-                    span.addEventListener('blur', hidePopup);
-                });
+                processSubtitle(currentSubtitle, overlay);
             }
 
             const observer = new MutationObserver(onNewTimeStamp);
