@@ -40,15 +40,17 @@ function getSubtitle(subtitles, currentSubtitle, lastTimeStampUpdate) {
 function processSubtitle(currentSubtitle, overlay) {
     const segmenter = new Intl.Segmenter('ja-JP', { granularity: 'word' });
     const segments = [...segmenter.segment(currentSubtitle)].map(segment => segment.segment);
-    overlay.innerHTML = segments.map((segment) => {
-        if (segment.match(japanesePunctuation)) return `<span>${segment}</span>`;
-        else return `<span class="segment-word" data-word="${segment}">${segment}</span>`;
-    }).join('');
+    chrome.runtime.sendMessage({ action: "known-list", wordList: segments }, (res) => {
+        overlay.innerHTML = segments.map((segment, index) => {
+            if (segment.match(japanesePunctuation)) return `<span>${segment}</span>`;
+            else return `<span class="segment-word ${res[index] ? "known" : ""}" data-word="${segment}">${segment}</span>`;
+        }).join('');
 
-    document.querySelectorAll('.segment-word').forEach(span => {
-        span.tabIndex = 0;
-        span.addEventListener('focus', (e) => showPopup(e, currentSubtitle));
-        span.addEventListener('blur', hidePopup);
+        document.querySelectorAll('.segment-word').forEach(span => {
+            span.tabIndex = 0;
+            span.addEventListener('focus', (e) => showPopup(e, currentSubtitle));
+            span.addEventListener('blur', hidePopup);
+        });
     });
 }
 
