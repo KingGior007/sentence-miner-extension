@@ -54,37 +54,6 @@ function processSubtitle(currentSubtitle, overlay) {
     });
 }
 
-function getIsPaused() {
-    const targetNode = document.querySelector('#movie_player');
-
-    if (targetNode) {
-        const observer = new MutationObserver((mutationsList) => {
-            for (const mutation of mutationsList) {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                    const element = mutation.target;
-                    if (element.classList.contains("paused-mode")) {
-                        isPaused = true;
-                    }
-                    else {
-                        isPaused = false;
-                    }
-                }
-            }
-        });
-
-        const config = {
-            attributes: true,
-            attributeFilter: ['class'],
-        };
-
-        observer.observe(targetNode, config);
-
-        console.log('Mutation observer is active');
-    } else {
-        console.error('Target node not found');
-    }
-}
-
 function setupYoutubeObserver() {
     let currentSubtitle;
     let isPaused = true;
@@ -139,8 +108,8 @@ function setupYoutubeObserver() {
                 lastTimeStampUpdate = timeStamp;
                 if (lastIntervalId !== null) {
                     clearInterval(lastIntervalId);
-                    lastIntervalId = setInterval(updateTimeStamp, 1000);
                 }
+                lastIntervalId = setInterval(updateTimeStamp, 1000);
 
                 currentSubtitle = getSubtitle(subtitles, currentSubtitle, lastTimeStampUpdate);
                 if (currentSubtitle === undefined) return;
@@ -154,7 +123,34 @@ function setupYoutubeObserver() {
 
             console.log("Observer set up successfully!");
 
-            getIsPaused()
+            const targetNode = document.querySelector('#movie_player');
+
+            if (targetNode) {
+                const observer = new MutationObserver((mutationsList) => {
+                    for (const mutation of mutationsList) {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                            const element = mutation.target;
+                            if (element.classList.contains("paused-mode")) {
+                                isPaused = true;
+                            }
+                            else {
+                                isPaused = false;
+                            }
+                        }
+                    }
+                });
+
+                const config = {
+                    attributes: true,
+                    attributeFilter: ['class'],
+                };
+
+                observer.observe(targetNode, config);
+
+                console.log('Mutation observer is active');
+            } else {
+                console.error('Target node not found');
+            }
 
             lastIntervalId = setInterval(updateTimeStamp, 1000);
         }
