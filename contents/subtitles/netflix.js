@@ -25,8 +25,11 @@ const setupNetflixObserver = () => {
                     if (node.nodeType === Node.ELEMENT_NODE && node.textContent.trim() && lastSub != node.textContent.trim()) {
                         lastSub = node.textContent.trim();
 
+                        // TODO: Use kuromoji for segmentation here
+                        // And add the initialization of the tokenizer somewhere else
                         const segmenter = new Intl.Segmenter('ja-JP', { granularity: 'word' });
                         const segments = [...segmenter.segment(lastSub)].map(segment => segment.segment);
+
                         chrome.runtime.sendMessage({ action: "known-list", wordList: segments }, (res) => {
                             console.log(res);
                             overlay.innerHTML = segments.map((segment, index) => {

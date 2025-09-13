@@ -54,10 +54,62 @@ function processSubtitle(currentSubtitle, overlay) {
     });
 }
 
+function setupKeyboardShortcuts() {
+    const BIND = { rewind: 'a', forward: 'd', toggle: 's' };
+    function keyHandler(e) {
+        // don't break combos or typing
+        if (e.ctrlKey || e.altKey || e.metaKey) return;
+        const t = e.target;
+        if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+
+        const key = (e.key || '').toLowerCase();
+        if (![BIND.rewind, BIND.forward, BIND.toggle].includes(key)) return;
+
+        // stop other handlers / default behaviour
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        const v = document.querySelector('video');
+        if (!v) { console.log('No <video> element found.'); return; }
+
+        if (key === BIND.rewind) v.currentTime = Math.max(0, v.currentTime - 3);
+        else if (key === BIND.forward) v.currentTime = Math.min(v.duration || Infinity, v.currentTime + 3);
+        else if (key === BIND.toggle) v.paused ? v.play() : v.pause();
+    }
+
+    document.addEventListener('keydown', keyHandler, { capture: true, passive: false });
+
+    // small floating badge so you remember the bindings (temporary)
+    const badge = document.createElement('div');
+    badge.id = 'yt-wasd-badge';
+    badge.textContent = `${BIND.rewind}: -3s   ${BIND.forward}: +3s   ${BIND.toggle}: play/pause`;
+    Object.assign(badge.style, {
+        position: 'fixed', right: '10px', bottom: '10px', zIndex: 2147483647,
+        padding: '6px 10px', fontSize: '12px', background: '#000', color: '#fff',
+        opacity: 0.78, borderRadius: '6px', pointerEvents: 'none'
+    });
+    document.body.appendChild(badge);
+
+    // expose quick controls
+    window._ytADSM = {
+        bindings: BIND,
+        remove() {
+            try { document.removeEventListener('keydown', keyHandler, { capture: true }); } catch (e) { }
+            try { document.removeEventListener('keydown', keyHandler, true); } catch (e) { }
+            const el = document.getElementById('yt-wasd-badge'); if (el) el.remove();
+            delete window._ytADSM;
+            console.log('Removed custom a/d/s handlers and badge.');
+        }
+    };
+
+    console.log(`Bound keys: ${BIND.rewind} (−3s), ${BIND.forward} (+3s), ${BIND.toggle} (play/pause). Remove with: window._ytADSM.remove()`);
+}
+
 function setupYoutubeObserver() {
     let currentSubtitle;
     let isPaused = true;
     addOverlay();
+    setupKeyboardShortcuts();
 
     let overlay = document.querySelector('.custom-overlay');
     overlay.textContent = "Fetching subtitles";
