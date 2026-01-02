@@ -1,12 +1,15 @@
-async function showPopup(e, lastSub) {
+async function showPopup(e, lastSub, additionalReading = "") {
     hidePopup(e);
+    if (additionalReading != "") {
+        additionalReading += ", ";
+    }
     const word = e.target.dataset.word;
     const popup = document.createElement('div');
     popup.className = 'dictionary-popup';
     try {
         const { kana, common, glosses } = await getDictionary(word);
         popup.innerHTML = `${kana}<span class="common-tag">${common}</span><span class="anki-button">send to anki</span><br>${glosses.join(", ")}`;
-        popup.querySelector(".anki-button").addEventListener("click", (e) => createSentenceCard(word, kana, glosses, lastSub));
+        popup.querySelector(".anki-button").addEventListener("click", (e) => createSentenceCard(word, additionalReading + kana /*and in-context-reading*/, glosses, lastSub));
     } catch {
         popup.innerHTML = "An error occured while fetching " + word + "'s data"
     }

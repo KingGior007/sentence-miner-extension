@@ -85,9 +85,11 @@ const setupNetflixObserver = () => {
                                 }).join('');
 
                                 // Add focus/blur listeners for popup
-                                document.querySelectorAll('.segment-word').forEach(span => {
+                                document.querySelectorAll('.segment-word').forEach((span, i) => {
                                     span.tabIndex = 0;
-                                    span.addEventListener('focus', (e) => showPopup(e, lastSub));
+                                    // Add furigana as a second parameter if there is and else ""
+                                    const additionalReading = mappedSegments[i] && mappedSegments[i].reading ? mappedSegments[i].reading : "";
+                                    span.addEventListener('focus', (e) => showPopup(e, lastSub, additionalReading));
                                     span.addEventListener('blur', hidePopup);
                                 });
                             }
