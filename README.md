@@ -11,7 +11,15 @@ It currently supports YouTube and Netflix but more platforms may be added in the
 
 ## Motivation
 I have been learning Japanese daily for about 2 years and could not find a good free sentence miner. So I made this to help me achieve that and have been mining daily with it ever since.
-![Chrome extension while sentence mining](pictures/mining.png)
+
+## Examples
+<div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 20px;">
+
+  <img src="pictures/mining.png" alt="Chrome extension while sentence mining" style="flex: 1; max-width: 45%;">
+
+  <img src="pictures/flashcard.png" alt="Anki flashcard" style="flex: 1; max-width: 45%;">
+
+</div>
 
 ## Installation
 
