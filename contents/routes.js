@@ -36,10 +36,6 @@ function setPathObserver() {
 
     createExtensionButtons();
     onDomChange();
-
-    window.addEventListener("unload", () => {
-        observer.disconnect();
-    });
 }
 
 function initializeState(callback) {
