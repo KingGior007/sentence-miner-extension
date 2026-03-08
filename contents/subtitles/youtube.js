@@ -14,6 +14,31 @@ const countUp = (timeStamp) => {
     return minute + ":" + to2Digits(second); // Return formatted time
 };
 
+function observePauseState(setPaused) {
+    const targetNode = document.querySelector('#movie_player');
+
+    if (!targetNode) {
+        console.error('Target node not found');
+        return;
+    }
+
+    const observer = new MutationObserver((mutationsList) => {
+        for (const mutation of mutationsList) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                const element = mutation.target;
+                setPaused(element.classList.contains("paused-mode"));
+            }
+        }
+    });
+
+    observer.observe(targetNode, {
+        attributes: true,
+        attributeFilter: ['class']
+    });
+
+    console.log('Mutation observer is active');
+}
+
 function getTranscript() {
     const subContainers = document.querySelectorAll("ytd-engagement-panel-section-list-renderer.style-scope.ytd-watch-flexy");
 
@@ -107,8 +132,8 @@ function setupYoutubeObserver() {
     try {
         // Remove a bad looking gradient
         document.querySelector(".ytp-gradient-bottom").style.display = "none";
-        // Disable youtube's subtitles
 
+        // Disable youtube's subtitles
         // NOTE: probably make an observer to hide the subs
         let captions = document.querySelector("button.ytp-subtitles-button.ytp-button");
         if (captions && captions.getAttribute("aria-pressed") == "true") {
@@ -117,89 +142,67 @@ function setupYoutubeObserver() {
 
         // Get the subtitle container
         let transcript = getTranscript();
+        if (!transcript) {
+            console.log("Subtitle container not found, retrying...");
+            setTimeout(setupYoutubeObserver, 1000); // Retry every second
+        }
 
-        if (transcript) {
-            let lastTimeStampUpdate;
-            const timeStampContainer = document.querySelector(".ytp-time-current")
+        let lastTimeStampUpdate;
+        const timeStampContainer = document.querySelector(".ytp-time-current")
 
-            // Expand the transcript
-            transcript.setAttribute("visibility", "ENGAGEMENT_PANEL_VISIBILITY_EXPANDED");
+        // Expand the transcript
+        transcript.setAttribute("visibility", "ENGAGEMENT_PANEL_VISIBILITY_EXPANDED");
 
-            const observerConfig = {
-                childList: true, // Detects changes to the children of the target node
-                subtree: true,   // Ensures observation extends to all descendants
-                characterData: true // Detects changes to the `textContent` of text nodes
-            };
-
-            function updateTimeStamp() {
-                if (lastTimeStampUpdate && !isPaused) {
-                    lastTimeStampUpdate = countUp(lastTimeStampUpdate);
-                    const subtitles = document.querySelectorAll("ytd-transcript-segment-renderer.style-scope.ytd-transcript-segment-list-renderer");
-
-                    currentSubtitle = getSubtitle(subtitles, currentSubtitle, lastTimeStampUpdate)
-                    if (currentSubtitle === undefined) return;
-
-                    processSubtitle(currentSubtitle, overlay);
-                }
-            }
-
-            const onNewTimeStamp = () => {
+        function updateTimeStamp() {
+            // Called many times to ensure sync
+            if (lastTimeStampUpdate && !isPaused) {
+                lastTimeStampUpdate = countUp(lastTimeStampUpdate);
                 const subtitles = document.querySelectorAll("ytd-transcript-segment-renderer.style-scope.ytd-transcript-segment-list-renderer");
-                const timeStamp = document.querySelector(".ytp-time-current").innerHTML;
-                lastTimeStampUpdate = timeStamp;
-                if (lastIntervalId !== null) {
-                    clearInterval(lastIntervalId);
-                }
-                lastIntervalId = setInterval(updateTimeStamp, 1000);
 
-                currentSubtitle = getSubtitle(subtitles, currentSubtitle, lastTimeStampUpdate);
+                currentSubtitle = getSubtitle(subtitles, currentSubtitle, lastTimeStampUpdate)
                 if (currentSubtitle === undefined) return;
 
                 processSubtitle(currentSubtitle, overlay);
             }
+        }
 
-            const observer = new MutationObserver(onNewTimeStamp);
-
-            observer.observe(timeStampContainer, observerConfig);
-
-            console.log("Observer set up successfully!");
-
-            const targetNode = document.querySelector('#movie_player');
-
-            if (targetNode) {
-                const observer = new MutationObserver((mutationsList) => {
-                    for (const mutation of mutationsList) {
-                        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                            const element = mutation.target;
-                            if (element.classList.contains("paused-mode")) {
-                                isPaused = true;
-                            }
-                            else {
-                                isPaused = false;
-                            }
-                        }
-                    }
-                });
-
-                const config = {
-                    attributes: true,
-                    attributeFilter: ['class'],
-                };
-
-                observer.observe(targetNode, config);
-
-                console.log('Mutation observer is active');
-            } else {
-                console.error('Target node not found');
+        const onNewTimeStamp = () => {
+            // Called when the user clicks to another time-stamp
+            const subtitles = document.querySelectorAll("ytd-transcript-segment-renderer.style-scope.ytd-transcript-segment-list-renderer");
+            const timeStamp = document.querySelector(".ytp-time-current").innerHTML;
+            lastTimeStampUpdate = timeStamp;
+            if (lastIntervalId !== null) {
+                clearInterval(lastIntervalId);
             }
-
             lastIntervalId = setInterval(updateTimeStamp, 1000);
+
+            currentSubtitle = getSubtitle(subtitles, currentSubtitle, lastTimeStampUpdate);
+            if (currentSubtitle === undefined) return;
+
+            processSubtitle(currentSubtitle, overlay);
         }
-        else {
-            console.log("Subtitle container not found, retrying...");
-            setTimeout(setupYoutubeObserver, 1000); // Retry every second
-        }
+
+        const observerConfig = {
+            childList: true, // Detects changes to the children of the target node
+            subtree: true,   // Ensures observation extends to all descendants
+            characterData: true // Detects changes to the `textContent` of text nodes
+        };
+
+        const observer = new MutationObserver(onNewTimeStamp);
+
+        observer.observe(timeStampContainer, observerConfig);
+
+        observePauseState((value) => {
+            isPaused = value;
+        });
+
+        lastIntervalId = setInterval(updateTimeStamp, 1000);
+        console.log("Observer set up successfully!");
     } catch {
+        if (lastIntervalId !== null) {
+            clearInterval(lastIntervalId);
+        }
+        lastIntervalId = null;
         console.log("Subtitle container not found, retrying...");
         setTimeout(setupYoutubeObserver, 1000); // Retry every second
     }
