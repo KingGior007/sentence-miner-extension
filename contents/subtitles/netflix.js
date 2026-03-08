@@ -37,6 +37,49 @@ function mapSubtitlePartsToSegments(subtitleParts) {
     });
 }
 
+async function handleAddedNode(node, container, overlay) {
+    // Ensure the node is an element (not a text node) and contains subtitle text
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+    const nodeText = node.textContent ? node.textContent.trim() : "";
+    if (!nodeText) return;
+    if (lastSub === nodeText) return;
+
+    // Parse structured parts from innerHTML (ruby + text)
+    const subtitleParts = extractSubtitleWithFurigana(container);
+
+    // Get subtitle text from container
+    lastSub = subtitleParts.map(p => p.type === 'ruby' ? p.base : p.text).join('');
+
+    // Map parts to segments (ruby bases whole, plain text segmented)
+    const mappedSegments = mapSubtitlePartsToSegments(subtitleParts);
+
+    const res = await sendMessageAsync({
+        action: "known-list",
+        wordList: mappedSegments.map(m => m.segment)
+    });
+    // Send segments to background / known-list
+    overlay.innerHTML = mappedSegments.map((m, index) => {
+        const { segment, reading } = m;
+        const knownClass = res && res[index] ? "known" : "";
+
+        if (segment.match(japanesePunctuation)) return `<span>${segment}</span>`;
+        if (reading) {
+            return `<span class="segment-word ${knownClass}" data-word="${segment}"><ruby>${segment}<rt>${reading}</rt></ruby></span>`;
+        }
+        return `<span class="segment-word ${knownClass}" data-word="${segment}">${segment}</span>`;
+    }).join('');
+
+    // Add focus/blur listeners for popup
+    document.querySelectorAll('.segment-word').forEach((span, i) => {
+        span.tabIndex = 0;
+        // Add furigana as a second parameter if there is and else ""
+        const additionalReading = mappedSegments[i] && mappedSegments[i].reading ? mappedSegments[i].reading : "";
+        span.addEventListener('focus', (e) => showPopup(e, lastSub, additionalReading));
+        span.addEventListener('blur', hidePopup);
+    });
+}
+
+
 let currentNetflixObserver = null;
 let lastTimeOutIdNetflix = null;
 const setupNetflixObserver = () => {
@@ -60,42 +103,7 @@ const setupNetflixObserver = () => {
             container.style.display = "none"
             for (const mutation of mutationsList) {
                 mutation.addedNodes.forEach((node) => {
-                    // Ensure the node is an element (not a text node) and contains subtitle text
-                    if (node.nodeType === Node.ELEMENT_NODE && node.textContent.trim() && lastSub != node.textContent.trim()) {
-                        // Parse structured parts from innerHTML (ruby + text)
-                        const subtitleParts = extractSubtitleWithFurigana(container);
-
-                        // Get subtitle text from container
-                        lastSub = subtitleParts.map(p => p.type === 'ruby' ? p.base : p.text).join('');
-
-                        // Map parts to segments (ruby bases whole, plain text segmented)
-                        const mappedSegments = mapSubtitlePartsToSegments(subtitleParts);
-
-                        // Send segments to background / known-list
-                        chrome.runtime.sendMessage(
-                            { action: "known-list", wordList: mappedSegments.map(m => m.segment) },
-                            (res) => {
-                                overlay.innerHTML = mappedSegments.map((m, index) => {
-                                    const { segment, reading } = m;
-                                    const knownClass = res && res[index] ? "known" : "";
-
-                                    if (segment.match(japanesePunctuation)) return `<span>${segment}</span>`;
-                                    if (reading) return `<span class="segment-word ${knownClass}" data-word="${segment}"><ruby>${segment}<rt>${reading}</rt></ruby></span>`;
-                                    return `<span class="segment-word ${knownClass}" data-word="${segment}">${segment}</span>`;
-                                }).join('');
-
-                                // Add focus/blur listeners for popup
-                                document.querySelectorAll('.segment-word').forEach((span, i) => {
-                                    span.tabIndex = 0;
-                                    // Add furigana as a second parameter if there is and else ""
-                                    const additionalReading = mappedSegments[i] && mappedSegments[i].reading ? mappedSegments[i].reading : "";
-                                    span.addEventListener('focus', (e) => showPopup(e, lastSub, additionalReading));
-                                    span.addEventListener('blur', hidePopup);
-                                });
-                            }
-                        );
-
-                    }
+                    handleAddedNode(node, container, overlay);
                 });
             }
 

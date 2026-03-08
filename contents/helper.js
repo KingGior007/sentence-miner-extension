@@ -12,6 +12,18 @@ function waitForStorage(callback) {
     }
 }
 
+const sendMessageAsync = (message) => {
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage(message, (res) => {
+            if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+            } else {
+                resolve(res);
+            }
+        });
+    });
+};
+
 async function createSentenceCard(word, kana, glosses, lastSub) {
     const url = 'http://localhost:5123/add_card';
     const regex = new RegExp(`(${word})`, 'gi');
