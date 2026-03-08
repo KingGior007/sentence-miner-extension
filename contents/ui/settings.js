@@ -57,7 +57,7 @@ function createExtensionButtons() {
             }
             else if (result.areMiningSubtitlesEnabled === false) {
                 chrome.storage.local.set({ areMiningSubtitlesEnabled: true });
-                // TODO: I believe I need to now make this open them
+                routeToPath(window.location.pathname);
                 toggleButton.textContent = 'Turn Off';
             }
             else {

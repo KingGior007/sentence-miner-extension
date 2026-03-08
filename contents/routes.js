@@ -1,3 +1,7 @@
+const extensionState = {
+    areMiningSubtitlesEnabled: false
+};
+
 function routeToPath(currentPath) {
     if (window.location.origin == "https://www.netflix.com" && currentPath.startsWith('/watch')) {
         console.log("Entered a Netflix watch page.");
@@ -16,41 +20,48 @@ function routeToPath(currentPath) {
 function setPathObserver() {
     let currentPath = null;
 
-    chrome.storage.local.get("areMiningSubtitlesEnabled", (result) => {
-        let areSubsEnabled = result.areMiningSubtitlesEnabled;
+    const onDomChange = () => {
+        const enabled = extensionState.areMiningSubtitlesEnabled;
 
-        const onDomChange = () => {
-            chrome.storage.local.get("areMiningSubtitlesEnabled", (result) => {
-                if (chrome.runtime.lastError) {
-                    console.error("Context invalidated", chrome.runtime.lastError.message);
-                    return;
-                }
+        if (enabled && currentPath !== window.location.pathname) {
+            currentPath = window.location.pathname;
+            routeToPath(currentPath);
+        }
+    };
 
-                const res = result.areMiningSubtitlesEnabled;
-                if (res && (currentPath !== window.location.pathname || areSubsEnabled !== res)) {
-                    areSubsEnabled = true;
-                    currentPath = window.location.pathname;
-                    routeToPath(currentPath);
-                }
-            });
-        };
+    const observer = new MutationObserver(onDomChange);
+    observer.observe(document.body, { childList: true, subtree: true });
 
-        // Observe changes in the body element
-        const observer = new MutationObserver(onDomChange);
-        observer.observe(document.body, { childList: true, subtree: true });
+    console.log("Path observer initialized.");
 
-        console.log("Path observer initialized.");
-        createExtensionButtons()
-        onDomChange();
+    createExtensionButtons();
+    onDomChange();
 
-        window.addEventListener("unload", () => {
-            observer.disconnect();
-        });
+    window.addEventListener("unload", () => {
+        observer.disconnect();
     });
 }
 
+function initializeState(callback) {
+    chrome.storage.local.get(["areMiningSubtitlesEnabled"], (result) => {
+        extensionState.areMiningSubtitlesEnabled =
+            result.areMiningSubtitlesEnabled ?? false;
+
+        callback();
+    });
+}
+
+chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "local" && changes.areMiningSubtitlesEnabled) {
+        extensionState.areMiningSubtitlesEnabled =
+            changes.areMiningSubtitlesEnabled.newValue;
+    }
+});
+
 window.addEventListener('load', () => {
     waitForStorage(() => {
-        setPathObserver();
-    })
+        initializeState(() => {
+            setPathObserver();
+        });
+    });
 });
