@@ -79,17 +79,6 @@ function setupKeyboardShortcuts() {
 
     document.addEventListener('keydown', keyHandler, { capture: true, passive: false });
 
-    // small floating badge so you remember the bindings (temporary)
-    const badge = document.createElement('div');
-    badge.id = 'yt-wasd-badge';
-    badge.textContent = `${BIND.rewind}: -3s   ${BIND.forward}: +3s   ${BIND.toggle}: play/pause`;
-    Object.assign(badge.style, {
-        position: 'fixed', right: '10px', bottom: '10px', zIndex: 2147483647,
-        padding: '6px 10px', fontSize: '12px', background: '#000', color: '#fff',
-        opacity: 0.78, borderRadius: '6px', pointerEvents: 'none'
-    });
-    document.body.appendChild(badge);
-
     // expose quick controls
     window._ytADSM = {
         bindings: BIND,
